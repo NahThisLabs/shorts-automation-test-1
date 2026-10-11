@@ -1,1 +1,20 @@
 
+name: Daily Shorts Script
+
+on: [workflow_dispatch, push]
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get project
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run script
+        run: python shorts_animation.py
+        
