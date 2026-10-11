@@ -15,6 +15,19 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run script
+      - name: Install video tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          pip install Pillow
+
+      - name: Create video
         run: python shorts_animation.py
-        
+
+      - name: Save video
+        uses: actions/upload-artifact@v4
+        with:
+          name: youtube-short
+          path: output/short.mp4
+          if-no-files-found: error
+          
