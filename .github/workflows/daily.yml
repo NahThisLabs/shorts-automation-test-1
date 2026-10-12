@@ -6,12 +6,19 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'shorts_animation.py'
+      - '.github/workflows/daily.yml'
   schedule:
-    - cron: "0 23 * * *"
+    - cron: '30 22 * * *'
+
+permissions:
+  contents: read
 
 jobs:
   generate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Get project
@@ -20,23 +27,34 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
+          cache: 'pip'
 
       - name: Install video tools
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg fonts-dejavu-core
-          python -m pip install Pillow
+          python -m pip install --upgrade pip
+          python -m pip install Pillow edge-tts
 
       - name: Create video
         run: python shorts_animation.py
+
+      - name: Check video exists
+        run: |
+          echo "Checking generated video..."
+          ls -lah output/
+          test -s output/short.mp4
+          ffprobe -v error \
+            -show_entries format=duration \
+            -of default=noprint_wrappers=1 \
+            output/short.mp4
 
       - name: Save video
         uses: actions/upload-artifact@v4
         with:
           name: youtube-short
-          path: |
-            output/silent.mp4
-            output/narration.txt
+          path: output/short.mp4
           if-no-files-found: error
+          retention-days: 7
           
